@@ -1,0 +1,6 @@
+Probe TCP NULL q||
+match blabla m|qqq|
+Probe TCP Verifier q|Subscribe\n|
+match blabla m|Verifier|
+Probe TCP mydoom q|\x0d\x0d|
+match blabla m|mydoom|

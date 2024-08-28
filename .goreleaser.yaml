@@ -1,0 +1,24 @@
+builds:
+  - main: ./cmd
+    id: "cokmap-go"
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+    goos:
+      - windows
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: linux
+        goarch: arm64
+      - goos: windows
+        goarch: arm64
+
+gitlab_urls:
+  api: https://cyberok.gitlab.yandexcloud.net/api/v4
+  download: https://cyberok.gitlab.yandexcloud.net
+  use_job_token: true
+  use_package_registry: true
+
