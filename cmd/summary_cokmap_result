@@ -1,0 +1,18 @@
+Scan stats:
+	targets processed: 1
+	TCP banners received: 1
+	UDP banners received: 0
+	time: 10.735006416s
+
+Protocols:
+	http: 1
+	
+Products:
+	nginx: 1
+	
+
+Errors:
+	
+Probes usage:
+	GetRequest: 1
+	

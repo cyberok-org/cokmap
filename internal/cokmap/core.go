@@ -20,7 +20,7 @@ type Cokmap struct {
 
 var (
 	tagLoadMatchers    = "LoadMatchers"
-	tagExtractProducts = "ExtractProductFromRunes"
+	tagExtractProducts = "ExtractProductsFromRunes"
 )
 
 func New(config *Config) *Cokmap {
@@ -44,6 +44,12 @@ func New(config *Config) *Cokmap {
 	}
 
 	return v
+}
+
+// PluginInterface должен совпадать с интерфейсом в плагине
+type PluginInterface interface {
+	LoadMatchers(in io.Reader, timeout time.Duration) (interface{}, error)
+	ExtractProductsFromRunes(matchers interface{}, input []rune, ip string) ([]interface{}, []error)
 }
 
 func (v *Cokmap) Start(ctx context.Context) error {
@@ -74,14 +80,14 @@ func (v *Cokmap) Start(ctx context.Context) error {
 		return fmt.Errorf("fatal error while loading product matcher %s error %w", v.config.ProductMatcherPlugin, err)
 	}
 
-	plugFuncLoadMatchers, err := p.Lookup(tagLoadMatchers)
+	symPlugin, err := p.Lookup("Plugin")
 	if err != nil {
-		return fmt.Errorf("fatal error while loading function %s product matcher %s error %w", tagLoadMatchers, v.config.ProductMatcherPlugin, err)
+		return fmt.Errorf("ошибка поиска символа plugin: %v", err)
 	}
 
-	lm, ok := plugFuncLoadMatchers.(func(nsp io.Reader, timeout time.Duration) (map[string][]byte, error))
+	pluginInstance, ok := symPlugin.(PluginInterface)
 	if !ok {
-		return fmt.Errorf("unexpected type from plugin symbol: %T", plugFuncLoadMatchers)
+		return fmt.Errorf("неверный тип плагина %T", pluginInstance)
 	}
 
 	probesFile, err := os.Open(v.config.ProbesFiles[0])
@@ -89,30 +95,41 @@ func (v *Cokmap) Start(ctx context.Context) error {
 		return fmt.Errorf("cannot load config probe files, error: %w, files: %v", err, v.config.PMCfgFile)
 	}
 
-	expressions, err := lm(probesFile, v.config.MatchReTimeout)
+	expressions, err := pluginInstance.LoadMatchers(probesFile, v.config.MatchReTimeout)
+	// expressions, err := (lm)(probesFile, v.config.MatchReTimeout)
 	if err != nil {
 		return fmt.Errorf("cannot load expressions probe file, error: %w, files: %s", err, v.config.ProbesFiles)
 	}
 	probesFile.Close()
 
-	extractProductFromRunesSymbol, err := p.Lookup(tagExtractProducts)
-	if err != nil {
-		return fmt.Errorf("fatal error while loading func %s from product matcher %s error %w", tagExtractProducts, v.config.ProductMatcherPlugin, err)
+	ma, ok := expressions.([]map[string]interface{})
+	if !ok {
+		return fmt.Errorf("cannot convert expressions to matchers.Matchers")
 	}
 
-	// Assert that the symbol is a function with the appropriate signature
-	ep, ok := extractProductFromRunesSymbol.(func(matchers []byte, banner []rune, socket string) ([]byte, error))
-	if !ok {
-		return fmt.Errorf("unexpected type from plugin symbol: %T", extractProductFromRunesSymbol)
+	expressionsByProbe, err := v.createExpressionsByProbe(ma)
+	if err != nil {
+		return fmt.Errorf("cannot create expressions map : %w", err)
 	}
+
+	// extractProductFromRunesSymbol, err := p.Lookup(tagExtractProducts)
+	// if err != nil {
+	// 	return fmt.Errorf("fatal error while loading func %s from product matcher %s error %w", tagExtractProducts, v.config.ProductMatcherPlugin, err)
+	// }
+
+	// Assert that the symbol is a function with the appropriate signature
+	// ep, ok := .(func(matchers []map[string]any, input []rune, ip string) ([]matcher.HostInfo, []error))
+	// if !ok {
+	// 	return fmt.Errorf("unexpected type from plugin symbol: %T", extractProductFromRunesSymbol)
+	// }
 
 	matcher := matcher.NewWorker(
 		v.config.CreateSummary,
 		v.config.CreateProbesSummary,
 		v.config.CreateErrorsSummary,
-		expressions,
+		expressionsByProbe,
 		probesByName,
-		ep,
+		pluginInstance.ExtractProductsFromRunes,
 	)
 
 	start := time.Now()

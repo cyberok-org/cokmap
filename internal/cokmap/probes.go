@@ -155,3 +155,69 @@ func (v *Cokmap) initProbes() (common, golden []probe.Probe, err error) {
 
 	return
 }
+
+// func (v *Cokmap) createExpressionsByProbe(expressions matchers.Matchers) (map[string]matchers.Matchers, error) {
+// 	if len(expressions) == 0 {
+// 		return nil, fmt.Errorf("expressions must be not empty")
+// 	}
+// 	allocatorMap := make(map[string]int, len(expressions))
+// 	for _, e := range expressions {
+// 		if e.Soft && !v.config.EnabledSoftMatch {
+// 			continue
+// 		}
+// 		allocatorMap[e.Probe] += 1
+// 	}
+// 	expressionsByProbe := make(map[string]matchers.Matchers, len(allocatorMap))
+// 	for _, e := range expressions {
+// 		if e.Soft && !v.config.EnabledSoftMatch {
+// 			continue
+// 		}
+// 		if len(expressionsByProbe[e.Probe]) == 0 {
+// 			expressionsByProbe[e.Probe] = make(matchers.Matchers, 0, allocatorMap[e.Probe])
+// 		}
+// 		expressionsByProbe[e.Probe] = append(expressionsByProbe[e.Probe], e)
+// 	}
+// 	return expressionsByProbe, nil
+// }
+
+func (v *Cokmap) createExpressionsByProbe(expressions []map[string]any) (map[string][]map[string]any, error) {
+	if len(expressions) == 0 {
+		return nil, fmt.Errorf("expressions must be not empty")
+	}
+
+	allocatorMap := make(map[string]int, len(expressions))
+	for _, e := range expressions {
+		// Проверяем наличие поля "Soft" и его тип
+		soft, ok := e["Soft"].(bool)
+		if !ok {
+			return nil, fmt.Errorf("неверный тип поля Soft: ожидается bool, получено %T", e["Soft"])
+		}
+		// Проверяем наличие поля "Probe" и его тип
+		probe, ok := e["Probe"].(string)
+		if !ok {
+			return nil, fmt.Errorf("неверный тип поля Probe: ожидается string, получено %T", e["Probe"])
+		}
+
+		if soft && !v.config.EnabledSoftMatch {
+			continue
+		}
+		allocatorMap[probe] += 1
+	}
+
+	expressionsByProbe := make(map[string][]map[string]any, len(allocatorMap))
+	for _, e := range expressions {
+		soft, _ := e["Soft"].(bool) // Уже проверяли тип выше
+		probe, _ := e["Probe"].(string)
+
+		if soft && !v.config.EnabledSoftMatch {
+			continue
+		}
+
+		if len(expressionsByProbe[probe]) == 0 {
+			expressionsByProbe[probe] = make([]map[string]any, 0, allocatorMap[probe])
+		}
+		expressionsByProbe[probe] = append(expressionsByProbe[probe], e)
+	}
+
+	return expressionsByProbe, nil
+}

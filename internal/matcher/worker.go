@@ -5,15 +5,15 @@ import (
 	"cokmap/internal/probe"
 	"context"
 	"encoding/hex"
-	"encoding/json"
+	"fmt"
 	"log/slog"
 	"sync"
 )
 
 type Worker struct {
 	summary            *ExtractSummary
-	extractProducts    func(matchers []byte, banner []rune, socket string) ([]byte, error)
-	expressionsByProbe map[string][]byte
+	extractProducts    func(matchers any, input []rune, ip string) ([]any, []error)
+	expressionsByProbe map[string][]map[string]any
 	probesByName       map[string]probe.Probe
 }
 type ExtractResult struct {
@@ -41,9 +41,11 @@ type Info[T any] struct {
 	CPE               []T `json:"cpe,omitempty"`
 }
 
-func NewWorker(createSummary, probesSummary, errorsSummary bool,
-	expressionsByProbe map[string][]byte, probesByName map[string]probe.Probe,
-	extractProducts func(matchers []byte, banner []rune, socket string) ([]byte, error)) *Worker {
+func NewWorker(
+	createSummary, probesSummary, errorsSummary bool,
+	expressionsByProbe map[string][]map[string]any, probesByName map[string]probe.Probe,
+	extractProducts func(matchers any, input []rune, ip string) ([]any, []error),
+) *Worker {
 	w := &Worker{expressionsByProbe: expressionsByProbe, probesByName: probesByName, extractProducts: extractProducts}
 	if createSummary {
 		w.summary = new(ExtractSummary)
@@ -77,28 +79,27 @@ func (w *Worker) ProcessBanners(ctx context.Context, wg *sync.WaitGroup, in chan
 			} else {
 				r = []rune(grab.Response)
 			}
-			extractedData, err := w.extractProducts(filtered, r, grab.IP)
+			extractedData, _ := w.extractProducts(filtered, r, grab.IP)
 			if err != nil {
 				grab.ErrorStr = err.Error()
 			}
-			hostInfo := []HostInfo{}
-			err = json.Unmarshal(extractedData, &hostInfo)
+			hi, err := convertToHostInfo(extractedData)
 			if err != nil {
-				slog.Warn("got error from unmarshaling result from extract func", "target", grab.IP, "error", err.Error())
-				continue
+				slog.Warn("got error from parsing response", "target", grab.IP, "error", err.Error())
+				return
 			}
-			w.saveProductsSummary(grab, hostInfo)
+			w.saveProductsSummary(grab, hi)
 
 			out <- &ExtractResult{
 				grab,
-				hostInfo,
+				hi,
 			}
 		}
 	}
 }
 
-func (w *Worker) getMatchersByProbe(probeName string, target *dialer.Target) []byte {
-	var filtered []byte
+func (w *Worker) getMatchersByProbe(probeName string, target *dialer.Target) []map[string]any {
+	var filtered []map[string]any
 	p, ok := w.expressionsByProbe[probeName]
 	if !ok {
 		for k, pack := range w.expressionsByProbe {
@@ -113,4 +114,65 @@ func (w *Worker) getMatchersByProbe(probeName string, target *dialer.Target) []b
 	}
 
 	return filtered
+}
+
+// Функция для преобразования []any в []HostInfo
+func convertToHostInfo(extractedData []any) ([]HostInfo, error) {
+	var hostInfos []HostInfo
+	for _, data := range extractedData {
+		// Проверяем, что элемент — это map[string]any
+		resultMap, ok := data.(map[string]any)
+		if !ok {
+			return nil, fmt.Errorf("неверный тип данных: ожидается map[string]any, получено %T", data)
+		}
+
+		// Извлекаем поле Info
+		infoMap, ok := resultMap["Info"].(map[string]any)
+		if !ok {
+			return nil, fmt.Errorf("неверный тип поля Info: ожидается map[string]any, получено %T", resultMap["Info"])
+		}
+
+		// Извлекаем CPE как []any и преобразуем в []string
+		var cpe []string
+		if cpeAny, ok := infoMap["CPE"].([]any); ok {
+			for _, c := range cpeAny {
+				if cStr, ok := c.(string); ok {
+					cpe = append(cpe, cStr)
+				}
+			}
+		}
+
+		// Создаём HostInfo, маппим поля
+		hostInfo := HostInfo{
+			Probe:     getStringField(resultMap, "Probe"),
+			Service:   getStringField(resultMap, "Service"),
+			SoftMatch: getBoolField(resultMap, "SoftMatch"),
+			Error:     getStringField(resultMap, "Error"),
+			Info: Info[string]{
+				VendorProductName: getStringField(infoMap, "VendorProductName"),
+				Version:           getStringField(infoMap, "Version"),
+				OS:                getStringField(infoMap, "OS"),
+				DeviceType:        getStringField(infoMap, "DeviceType"),
+				CPE:               cpe,
+			},
+		}
+
+		hostInfos = append(hostInfos, hostInfo)
+	}
+	return hostInfos, nil
+}
+
+// Вспомогательные функции для безопасного извлечения
+func getStringField(m map[string]any, key string) string {
+	if val, ok := m[key].(string); ok {
+		return val
+	}
+	return ""
+}
+
+func getBoolField(m map[string]any, key string) bool {
+	if val, ok := m[key].(bool); ok {
+		return val
+	}
+	return false
 }

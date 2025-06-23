@@ -1,0 +1,17 @@
+{
+    "ip": "5.180.18.18",
+    "port": 80,
+    "protocol": "tcp",
+    "ssl/tls": false,
+    "ProbeName": "GetRequest",
+    "Response": "HTTP/1.1 200 OK\r\nServer: nginx\r\nDate: Mon, 23 Jun 2025 09:57:38 GMT\r\nContent-Type: text/html\r\nContent-Length: 615\r\nLast-Modified: Tue, 04 Mar 2025 09:04:12 GMT\r\nConnection: close\r\nETag: \"67c6c20c-267\"\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: SAMEORIGIN\r\nX-XSS-Protection: 1; mode=block\r\nAccept-Ranges: bytes\r\n\r\n\u003c!DOCTYPE html\u003e\n\u003chtml\u003e\n\u003chead\u003e\n\u003ctitle\u003eWelcome to nginx!\u003c/title\u003e\n\u003cstyle\u003e\nhtml { color-scheme: light dark; }\nbody { width: 35em; margin: 0 auto;\nfont-family: Tahoma, Verdana, Arial, sans-serif; }\n\u003c/style\u003e\n\u003c/head\u003e\n\u003cbody\u003e\n\u003ch1\u003eWelcome to nginx!\u003c/h1\u003e\n\u003cp\u003eIf you see this page, the nginx web server is successfully installed and\nworking. Further configuration is required.\u003c/p\u003e\n\n\u003cp\u003eFor online documentation and support please refer to\n\u003ca href=\"http://nginx.org/\"\u003enginx.org\u003c/a\u003e.\u003cbr/\u003e\nCommercial support is available at\n\u003ca href=\"http://nginx.com/\"\u003enginx.com\u003c/a\u003e.\u003c/p\u003e\n\n\u003cp\u003e\u003cem\u003eThank you for using nginx.\u003c/em\u003e\u003c/p\u003e\n\u003c/body\u003e\n\u003c/html\u003e\n",
+    "Products": [
+        {
+            "probe": "GetRequest",
+            "service": "http",
+            "regex": "",
+            "softmatch": false,
+            "vendorproductname": "nginx"
+        }
+    ]
+}
