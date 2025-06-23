@@ -46,7 +46,6 @@ func New(config *Config) *Cokmap {
 	return v
 }
 
-// PluginInterface должен совпадать с интерфейсом в плагине
 type PluginInterface interface {
 	LoadMatchers(in io.Reader, timeout time.Duration) (interface{}, error)
 	ExtractProductsFromRunes(matchers interface{}, input []rune, ip string) ([]interface{}, []error)

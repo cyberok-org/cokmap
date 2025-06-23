@@ -116,23 +116,20 @@ func (w *Worker) getMatchersByProbe(probeName string, target *dialer.Target) []m
 	return filtered
 }
 
-// Функция для преобразования []any в []HostInfo
 func convertToHostInfo(extractedData []any) ([]HostInfo, error) {
 	var hostInfos []HostInfo
 	for _, data := range extractedData {
-		// Проверяем, что элемент — это map[string]any
+
 		resultMap, ok := data.(map[string]any)
 		if !ok {
 			return nil, fmt.Errorf("неверный тип данных: ожидается map[string]any, получено %T", data)
 		}
 
-		// Извлекаем поле Info
 		infoMap, ok := resultMap["Info"].(map[string]any)
 		if !ok {
 			return nil, fmt.Errorf("неверный тип поля Info: ожидается map[string]any, получено %T", resultMap["Info"])
 		}
 
-		// Извлекаем CPE как []any и преобразуем в []string
 		var cpe []string
 		if cpeAny, ok := infoMap["CPE"].([]any); ok {
 			for _, c := range cpeAny {
@@ -142,7 +139,6 @@ func convertToHostInfo(extractedData []any) ([]HostInfo, error) {
 			}
 		}
 
-		// Создаём HostInfo, маппим поля
 		hostInfo := HostInfo{
 			Probe:     getStringField(resultMap, "Probe"),
 			Service:   getStringField(resultMap, "Service"),
@@ -162,7 +158,6 @@ func convertToHostInfo(extractedData []any) ([]HostInfo, error) {
 	return hostInfos, nil
 }
 
-// Вспомогательные функции для безопасного извлечения
 func getStringField(m map[string]any, key string) string {
 	if val, ok := m[key].(string); ok {
 		return val
