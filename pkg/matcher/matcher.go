@@ -50,7 +50,7 @@ type MatchPattern struct {
 type Match struct {
 	Service string
 	MatchPattern
-	Info[string]
+	Info[Template]
 	Soft bool
 }
 
