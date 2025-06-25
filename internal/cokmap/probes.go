@@ -159,7 +159,7 @@ func (v *Cokmap) initProbes() (common, golden []probe.Probe, err error) {
 }
 
 func (v *Cokmap) createExpressionsByProbe(expressions matcher.Matchers) (map[string]matcher.Matchers, error) {
-	if expressions == nil || len(expressions) == 0 {
+	if len(expressions) == 0 {
 		return nil, fmt.Errorf("expressions must be not nil and empty")
 	}
 	allocatorMap := make(map[string]int, len(expressions))

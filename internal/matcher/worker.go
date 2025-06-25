@@ -13,7 +13,7 @@ import (
 
 type Worker struct {
 	summary            *ExtractSummary
-	extractProducts    func(matchers matcher.Matchers, banner []rune, socket string) ([]matcher.HostInfo, error)
+	extractProducts    func(matchers matcher.Matchers, banner []rune, socket string) ([]matcher.HostInfo, []error)
 	expressionsByProbe map[string]matcher.Matchers
 	probesByName       map[string]probe.Probe
 }
@@ -25,7 +25,7 @@ type ExtractResult struct {
 func NewWorker(
 	createSummary, probesSummary, errorsSummary bool,
 	expressionsByProbe map[string]matcher.Matchers, probesByName map[string]probe.Probe,
-	extractProducts func(matchers matcher.Matchers, banner []rune, socket string) ([]matcher.HostInfo, error),
+	extractProducts func(matchers matcher.Matchers, banner []rune, socket string) ([]matcher.HostInfo, []error),
 ) *Worker {
 	w := &Worker{expressionsByProbe: expressionsByProbe, probesByName: probesByName, extractProducts: extractProducts}
 	if createSummary {
@@ -60,7 +60,10 @@ func (w *Worker) ProcessBanners(ctx context.Context, wg *sync.WaitGroup, in chan
 			} else {
 				r = []rune(grab.Response)
 			}
-			extractedData, err := w.extractProducts(filtered, r, grab.IP)
+			extractedData, errRegexps := w.extractProducts(filtered, r, grab.IP)
+			if len(errRegexps) > 0 {
+				slog.Debug("got timeout errors while fetching products", "target", grab.GetAddress(), "errs", errRegexps)
+			}
 			if err != nil {
 				grab.ErrorStr = err.Error()
 			}
