@@ -2,10 +2,10 @@ package matcher
 
 import "cyberok.gitlab.yandexcloud.net/cok/tools/regexp2"
 
-type tokenKind int
+type TokenKind int
 
 type Token struct {
-	Kind  tokenKind `json:"kind"`
+	Kind  TokenKind `json:"kind"`
 	Value string    `json:"value"`
 	Args  []string  `json:"args"`
 }
