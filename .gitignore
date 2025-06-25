@@ -16,6 +16,6 @@ go.work.sum
 *.txt
 *.json*
 /cmd/cmd
-*.so
+
 /cmd/*res*
 
