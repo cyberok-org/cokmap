@@ -10,7 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cyberok-org/cokmap/internal/matcher"
+	ma "github.com/cyberok-org/cokmap/internal/matcher"
+	"github.com/cyberok-org/cokmap/pkg/matcher"
 
 	"github.com/cyberok-org/cokmap/internal/dialer"
 )
@@ -81,7 +82,7 @@ func (v *Cokmap) Start(ctx context.Context) error {
 		return fmt.Errorf("fatal error while loading function %s product matcher %s error %w", tagLoadMatchers, v.config.ProductMatcherPlugin, err)
 	}
 
-	lm, ok := plugFuncLoadMatchers.(func(nsp io.Reader, timeout time.Duration) (map[string][]byte, error))
+	lm, ok := plugFuncLoadMatchers.(func(nsp io.Reader, timeout time.Duration) (matcher.Matchers, error))
 	if !ok {
 		return fmt.Errorf("unexpected type from plugin symbol: %T", plugFuncLoadMatchers)
 	}
@@ -90,12 +91,16 @@ func (v *Cokmap) Start(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("cannot load config probe files, error: %w, files: %v", err, v.config.PMCfgFile)
 	}
-
+	defer func() { _ = probesFile.Close() }()
 	expressions, err := lm(probesFile, v.config.MatchReTimeout)
 	if err != nil {
 		return fmt.Errorf("cannot load expressions probe file, error: %w, files: %s", err, v.config.ProbesFiles)
 	}
-	probesFile.Close()
+
+	expressionsByProbe, err := v.createExpressionsByProbe(expressions)
+	if err != nil {
+		return fmt.Errorf("cannot create expressions map : %w", err)
+	}
 
 	extractProductFromRunesSymbol, err := p.Lookup(tagExtractProducts)
 	if err != nil {
@@ -103,16 +108,16 @@ func (v *Cokmap) Start(ctx context.Context) error {
 	}
 
 	// Assert that the symbol is a function with the appropriate signature
-	ep, ok := extractProductFromRunesSymbol.(func(matchers []byte, banner []rune, socket string) ([]byte, error))
+	ep, ok := extractProductFromRunesSymbol.(func(matchers matcher.Matchers, banner []rune, socket string) ([]matcher.HostInfo, error))
 	if !ok {
 		return fmt.Errorf("unexpected type from plugin symbol: %T", extractProductFromRunesSymbol)
 	}
 
-	matcher := matcher.NewWorker(
+	matcher := ma.NewWorker(
 		v.config.CreateSummary,
 		v.config.CreateProbesSummary,
 		v.config.CreateErrorsSummary,
-		expressions,
+		expressionsByProbe,
 		probesByName,
 		ep,
 	)
@@ -129,8 +134,8 @@ func (v *Cokmap) Start(ctx context.Context) error {
 	return nil
 }
 
-func (v *Cokmap) launchWorkers(ctx context.Context, grabWorker *dialer.Worker, extractWorker *matcher.Worker) error {
-	res := make(chan *matcher.ExtractResult)
+func (v *Cokmap) launchWorkers(ctx context.Context, grabWorker *dialer.Worker, extractWorker *ma.Worker) error {
+	res := make(chan *ma.ExtractResult)
 	inTargets := make(chan dialer.Target)
 	grab := make(chan *dialer.DialResult, v.config.DialWorkers*4)
 

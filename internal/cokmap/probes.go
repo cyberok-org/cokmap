@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/cyberok-org/cokmap/internal/probe"
+	"github.com/cyberok-org/cokmap/pkg/matcher"
 )
 
 func (v *Cokmap) probesFormat(common, golden []probe.Probe) error {
@@ -155,4 +156,28 @@ func (v *Cokmap) initProbes() (common, golden []probe.Probe, err error) {
 	}
 
 	return
+}
+
+func (v *Cokmap) createExpressionsByProbe(expressions matcher.Matchers) (map[string]matcher.Matchers, error) {
+	if expressions == nil || len(expressions) == 0 {
+		return nil, fmt.Errorf("expressions must be not nil and empty")
+	}
+	allocatorMap := make(map[string]int, len(expressions))
+	for _, e := range expressions {
+		if e.Soft && !v.config.EnabledSoftMatch {
+			continue
+		}
+		allocatorMap[e.Probe] += 1
+	}
+	expressionsByProbe := make(map[string]matcher.Matchers, len(allocatorMap))
+	for _, e := range expressions {
+		if e.Soft && !v.config.EnabledSoftMatch {
+			continue
+		}
+		if len(expressionsByProbe[e.Probe]) == 0 {
+			expressionsByProbe[e.Probe] = make(matcher.Matchers, 0, allocatorMap[e.Probe])
+		}
+		expressionsByProbe[e.Probe] = append(expressionsByProbe[e.Probe], e)
+	}
+	return expressionsByProbe, nil
 }

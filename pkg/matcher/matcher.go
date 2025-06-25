@@ -20,6 +20,16 @@ const (
 	UDP             = Protocol("UDP")
 )
 
+type Info[T any] struct {
+	VendorProductName T   `json:"vendorproductname,omitempty"`
+	Version           T   `json:"version,omitempty"`
+	Info              T   `json:"info,omitempty"`
+	Hostname          T   `json:"hostname,omitempty"`
+	OS                T   `json:"os,omitempty"`
+	DeviceType        T   `json:"devicetype,omitempty"`
+	CPE               []T `json:"cpe,omitempty"`
+}
+
 type Matcher struct {
 	Protocol Protocol
 	Probe    string
@@ -50,4 +60,14 @@ type ServiceProbe struct {
 	ProbeString string
 	NoPayload   bool
 	Matches     []Match
+}
+
+type HostInfo struct {
+	Probe       string `json:"probe"`
+	Service     string `json:"service"`
+	Regex       string `json:"regex"`
+	FaviconHash string `json:"favicon_hash,omitempty"`
+	SoftMatch   bool   `json:"softmatch"`
+	Error       string `json:"error,omitempty"`
+	Info[string]
 }
