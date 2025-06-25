@@ -1,10 +1,10 @@
 package matcher
 
 import (
-	"cokmap/internal/dialer"
-	"cokmap/internal/probe"
 	"testing"
 
+	"github.com/cyberok-org/cokmap/internal/dialer"
+	"github.com/cyberok-org/cokmap/internal/probe"
 )
 
 func TestSummarySave(t *testing.T) {

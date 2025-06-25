@@ -2,7 +2,6 @@ package dialer
 
 import (
 	"bytes"
-	"cokmap/internal/probe"
 	"context"
 	"fmt"
 	"net"
@@ -12,6 +11,8 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/cyberok-org/cokmap/internal/probe"
 
 	"github.com/stretchr/testify/require"
 )

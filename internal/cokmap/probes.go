@@ -1,12 +1,13 @@
 package cokmap
 
 import (
-	"cokmap/internal/probe"
 	"fmt"
 	"io"
 	"log/slog"
 	"os"
 	"strings"
+
+	"github.com/cyberok-org/cokmap/internal/probe"
 )
 
 func (v *Cokmap) probesFormat(common, golden []probe.Probe) error {

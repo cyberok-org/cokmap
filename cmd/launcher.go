@@ -2,9 +2,6 @@ package main
 
 import (
 	"bufio"
-	"cokmap/internal/cokmap"
-	"cokmap/internal/dialer"
-	"cokmap/internal/matcher"
 	"context"
 	"encoding/json"
 	"errors"
@@ -18,6 +15,10 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/cyberok-org/cokmap/internal/cokmap"
+	"github.com/cyberok-org/cokmap/internal/dialer"
+	"github.com/cyberok-org/cokmap/internal/matcher"
 )
 
 const targetPattern = `^(?P<ip>(?:(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])):(?P<port>\d+)/?(?P<protocol>udp|tcp|tls|http|https|ssl)?$`

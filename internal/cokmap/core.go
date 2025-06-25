@@ -1,8 +1,6 @@
 package cokmap
 
 import (
-	"cokmap/internal/dialer"
-	"cokmap/internal/matcher"
 	"context"
 	"fmt"
 	"io"
@@ -11,6 +9,10 @@ import (
 	"plugin"
 	"sync"
 	"time"
+
+	"github.com/cyberok-org/cokmap/internal/matcher"
+
+	"github.com/cyberok-org/cokmap/internal/dialer"
 )
 
 type Cokmap struct {

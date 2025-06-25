@@ -1,4 +1,4 @@
-module cokmap
+module github.com/cyberok-org/cokmap
 
 go 1.22
 

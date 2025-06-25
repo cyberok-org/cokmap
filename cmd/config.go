@@ -1,9 +1,10 @@
 package main
 
 import (
-	"cokmap/internal/cokmap"
 	"flag"
 	"time"
+
+	"github.com/cyberok-org/cokmap/internal/cokmap"
 )
 
 var (

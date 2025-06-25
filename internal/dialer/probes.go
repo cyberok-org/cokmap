@@ -1,8 +1,9 @@
 package dialer
 
 import (
-	"cokmap/internal/probe"
 	"strings"
+
+	"github.com/cyberok-org/cokmap/internal/probe"
 )
 
 func (w *Worker) selectProbes(target *Target) []probe.Probe {

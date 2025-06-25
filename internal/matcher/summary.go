@@ -1,12 +1,13 @@
 package matcher
 
 import (
-	"cokmap/internal/dialer"
 	"errors"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"unicode"
+
+	"github.com/cyberok-org/cokmap/internal/dialer"
 )
 
 type ExtractSummary struct {

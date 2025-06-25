@@ -2,14 +2,15 @@ package main
 
 import (
 	"bytes"
-	"cokmap/internal/dialer"
-	"cokmap/internal/matcher"
 	"context"
 	"encoding/json"
 	"os"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/cyberok-org/cokmap/internal/dialer"
+	"github.com/cyberok-org/cokmap/internal/matcher"
 )
 
 func Test_output(t *testing.T) {

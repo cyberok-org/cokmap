@@ -1,7 +1,6 @@
 package dialer
 
 import (
-	"cokmap/internal/probe"
 	"context"
 	"crypto/tls"
 	"log/slog"
@@ -10,6 +9,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/cyberok-org/cokmap/internal/probe"
 )
 
 type Config struct {
@@ -35,7 +36,7 @@ type Worker struct {
 type ScanData struct {
 	probe.Probe
 	Response string
-	Error    error `json:"-"`
+	Error    error  `json:"-"`
 	ErrorStr string `json:"error,omitempty"`
 }
 
