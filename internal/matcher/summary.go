@@ -7,8 +7,8 @@ import (
 	"sync/atomic"
 	"unicode"
 
+	"github.com/cyberok-org/cokmap-api/types"
 	"github.com/cyberok-org/cokmap/internal/dialer"
-	"github.com/cyberok-org/cokmap/pkg/matcher"
 )
 
 type ExtractSummary struct {
@@ -20,7 +20,7 @@ type ExtractSummary struct {
 	probes    sync.Map
 }
 
-func (v *Worker) saveProductsSummary(grab *dialer.DialResult, extract []matcher.HostInfo) {
+func (v *Worker) saveProductsSummary(grab *dialer.DialResult, extract []types.HostInfo) {
 	if v.summary == nil {
 		return
 	}

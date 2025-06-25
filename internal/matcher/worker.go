@@ -6,26 +6,26 @@ import (
 	"log/slog"
 	"sync"
 
+	"github.com/cyberok-org/cokmap-api/types"
 	"github.com/cyberok-org/cokmap/internal/dialer"
 	"github.com/cyberok-org/cokmap/internal/probe"
-	"github.com/cyberok-org/cokmap/pkg/matcher"
 )
 
 type Worker struct {
 	summary            *ExtractSummary
-	extractProducts    func(matchers matcher.Matchers, banner []rune, socket string) ([]matcher.HostInfo, []error)
-	expressionsByProbe map[string]matcher.Matchers
+	extractProducts    func(matchers types.Matchers, banner []rune, socket string) ([]types.HostInfo, []error)
+	expressionsByProbe map[string]types.Matchers
 	probesByName       map[string]probe.Probe
 }
 type ExtractResult struct {
 	*dialer.DialResult
-	Products []matcher.HostInfo
+	Products []types.HostInfo
 }
 
 func NewWorker(
 	createSummary, probesSummary, errorsSummary bool,
-	expressionsByProbe map[string]matcher.Matchers, probesByName map[string]probe.Probe,
-	extractProducts func(matchers matcher.Matchers, banner []rune, socket string) ([]matcher.HostInfo, []error),
+	expressionsByProbe map[string]types.Matchers, probesByName map[string]probe.Probe,
+	extractProducts func(matchers types.Matchers, banner []rune, socket string) ([]types.HostInfo, []error),
 ) *Worker {
 	w := &Worker{expressionsByProbe: expressionsByProbe, probesByName: probesByName, extractProducts: extractProducts}
 	if createSummary {
@@ -77,8 +77,8 @@ func (w *Worker) ProcessBanners(ctx context.Context, wg *sync.WaitGroup, in chan
 	}
 }
 
-func (w *Worker) getMatchersByProbe(probeName string, target *dialer.Target) matcher.Matchers {
-	var filtered matcher.Matchers
+func (w *Worker) getMatchersByProbe(probeName string, target *dialer.Target) types.Matchers {
+	var filtered types.Matchers
 	p, ok := w.expressionsByProbe[probeName]
 	if !ok {
 		for k, probe := range w.expressionsByProbe {

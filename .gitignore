@@ -17,3 +17,5 @@ go.work.sum
 *.json*
 /cmd/cmd
 *.so
+/cmd/*res*
+

@@ -1,5 +1,7 @@
 cyberok.gitlab.yandexcloud.net/cok/tools/regexp2 v1.13.0 h1:j/sA5pWBN82ye9ssUHimmsL0as2oogK8KGA1behCwNg=
 cyberok.gitlab.yandexcloud.net/cok/tools/regexp2 v1.13.0/go.mod h1:jBDxlNjQJR0j7m2FWcIUXwK778s7m2QxspirPbst6kU=
+github.com/cyberok-org/cokmap-api v1.0.0 h1:0gobArHRkzyxj2LoxOBpSWnxT2eOFAu6CJjrzdzp13c=
+github.com/cyberok-org/cokmap-api v1.0.0/go.mod h1:/CRdCo4zJVf5aUeaujXT+rvi0t3GX4r/Lr5fLyZsZkw=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dlclark/regexp2 v1.11.0/go.mod h1:DHkYz0B9wPfa6wondMfaivmHpzrQ3v9q8cnmRbL6yW8=

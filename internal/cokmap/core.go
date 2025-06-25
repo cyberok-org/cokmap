@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/cyberok-org/cokmap-api/types"
 	ma "github.com/cyberok-org/cokmap/internal/matcher"
-	"github.com/cyberok-org/cokmap/pkg/matcher"
 
 	"github.com/cyberok-org/cokmap/internal/dialer"
 )
@@ -77,7 +77,7 @@ func (v *Cokmap) Start(ctx context.Context) error {
 		return fmt.Errorf("fatal error while loading function LoadMatchers product matcher error: %w", err)
 	}
 
-	loadMatchers, ok := loadMatchersPointer.(func(in io.Reader, timeout time.Duration) (matcher.Matchers, error))
+	loadMatchers, ok := loadMatchersPointer.(func(in io.Reader, timeout time.Duration) (types.Matchers, error))
 	if !ok {
 		return fmt.Errorf("unexpected type from plugin symbol: %T", loadMatchersPointer)
 	}
@@ -100,7 +100,7 @@ func (v *Cokmap) Start(ctx context.Context) error {
 		return fmt.Errorf("fatal error while loading function %s product matcher Plugin error %w", v.config.ProductMatcherPlugin, err)
 	}
 
-	extracterProducts, ok := extracterProductsPointer.(func(matchers matcher.Matchers, input []int32, ip string) ([]matcher.HostInfo, []error))
+	extracterProducts, ok := extracterProductsPointer.(func(matchers types.Matchers, input []int32, ip string) ([]types.HostInfo, []error))
 	if !ok {
 		return fmt.Errorf("unexpected type from plugin symbol: %T", extracterProducts)
 	}

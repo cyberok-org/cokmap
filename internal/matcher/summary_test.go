@@ -3,16 +3,16 @@ package matcher
 import (
 	"testing"
 
+	"github.com/cyberok-org/cokmap-api/types"
 	"github.com/cyberok-org/cokmap/internal/dialer"
 	"github.com/cyberok-org/cokmap/internal/probe"
-	"github.com/cyberok-org/cokmap/pkg/matcher"
 )
 
 func TestSummarySave(t *testing.T) {
 	type testCase struct {
 		name             string
 		data             *dialer.DialResult
-		products         []matcher.HostInfo
+		products         []types.HostInfo
 		expectedServices int
 		expectedVendors  int
 		expectedErrors   int
@@ -23,12 +23,12 @@ func TestSummarySave(t *testing.T) {
 		{
 			name:     "Empty Products",
 			data:     &dialer.DialResult{ScanData: &dialer.ScanData{}, Target: &dialer.Target{}},
-			products: []matcher.HostInfo{},
+			products: []types.HostInfo{},
 		},
 		{
 			name: "Multiple Services",
 			data: &dialer.DialResult{ScanData: &dialer.ScanData{}, Target: &dialer.Target{}},
-			products: []matcher.HostInfo{
+			products: []types.HostInfo{
 				{Service: "abc"},
 				{Service: "abc"},
 				{Service: "abc"},
@@ -40,7 +40,7 @@ func TestSummarySave(t *testing.T) {
 		{
 			name: "All Same Service",
 			data: &dialer.DialResult{ScanData: &dialer.ScanData{}, Target: &dialer.Target{}},
-			products: []matcher.HostInfo{
+			products: []types.HostInfo{
 				{Service: "abc"},
 				{Service: "abc"},
 				{Service: "abc"},
@@ -51,11 +51,11 @@ func TestSummarySave(t *testing.T) {
 		{
 			name: "All Same Service",
 			data: &dialer.DialResult{ScanData: &dialer.ScanData{}, Target: &dialer.Target{}},
-			products: []matcher.HostInfo{
-				{Service: "abc", Info: matcher.Info[string]{VendorProductName: "vendor"}},
-				{Service: "abc", Info: matcher.Info[string]{VendorProductName: "qwf"}},
-				{Service: "abc", Info: matcher.Info[string]{VendorProductName: "vcx"}},
-				{Service: "abc", Info: matcher.Info[string]{VendorProductName: "qzzzwf"}},
+			products: []types.HostInfo{
+				{Service: "abc", Info: types.Info[string]{VendorProductName: "vendor"}},
+				{Service: "abc", Info: types.Info[string]{VendorProductName: "qwf"}},
+				{Service: "abc", Info: types.Info[string]{VendorProductName: "vcx"}},
+				{Service: "abc", Info: types.Info[string]{VendorProductName: "qzzzwf"}},
 			},
 			expectedServices: 1,
 			expectedVendors:  4,
@@ -63,11 +63,11 @@ func TestSummarySave(t *testing.T) {
 		{
 			name: "All Same Service",
 			data: &dialer.DialResult{ScanData: &dialer.ScanData{}, Target: &dialer.Target{}},
-			products: []matcher.HostInfo{
-				{Service: "abc", Info: matcher.Info[string]{VendorProductName: "vendor"}},
-				{Service: "abc", Info: matcher.Info[string]{VendorProductName: "qwf"}},
-				{Service: "abc", Info: matcher.Info[string]{VendorProductName: "vcx"}},
-				{Service: "abc", Info: matcher.Info[string]{VendorProductName: "qzzzwf"}},
+			products: []types.HostInfo{
+				{Service: "abc", Info: types.Info[string]{VendorProductName: "vendor"}},
+				{Service: "abc", Info: types.Info[string]{VendorProductName: "qwf"}},
+				{Service: "abc", Info: types.Info[string]{VendorProductName: "vcx"}},
+				{Service: "abc", Info: types.Info[string]{VendorProductName: "qzzzwf"}},
 			},
 			expectedServices: 1,
 			expectedVendors:  4,
