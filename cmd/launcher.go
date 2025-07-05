@@ -161,7 +161,7 @@ func output(ctx context.Context, outFile string, bannerOutputSize int, ch <-chan
 			if err != nil {
 				continue
 			}
-			dest.WriteString(string(encodeJSON))
+			dest.Write(encodeJSON)
 			dest.Write([]byte{0x0a})
 		}
 	}
