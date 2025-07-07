@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net"
 	"strconv"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -35,7 +36,7 @@ type Worker struct {
 type ScanData struct {
 	probe.Probe
 	Response string
-	Error    error `json:"-"`
+	Error    error  `json:"-"`
 	ErrorStr string `json:"error,omitempty"`
 }
 
@@ -132,11 +133,37 @@ func (w *Worker) ProcessTargets(ctx context.Context, wg *sync.WaitGroup, in <-ch
 	}
 }
 
+var httpProbes = map[string]struct{}{
+	"GetRequest":        {},
+	"HTTPOptions":       {},
+	"FourOhFourRequest": {},
+}
+
+var newLine = "\r\n"
+
+func modifyHTTPProbe(data string, target *Target) string {
+
+	idxEndHeaders := strings.Index(data, newLine) // find first "\r\n"
+	if idxEndHeaders == -1 {
+		return data
+	}
+
+	return data[:idxEndHeaders] + "\r\nHost: " + target.IP + data[idxEndHeaders:]
+}
+
 func (w *Worker) scanWithProbes(ctx context.Context, target *Target, probes []probe.Probe) (result *ScanData, usedProbes []probe.Probe, status Errno) {
 	result = new(ScanData)
 	for _, p := range probes {
 		var response []byte
-		response, status = w.grabResponse(ctx, target, probe.DecodeData(p.Data))
+
+		var probeToSend string
+		if _, ok := httpProbes[p.Name]; ok {
+			probeToSend = modifyHTTPProbe(p.Data, target)
+		} else {
+			probeToSend = p.Data
+		}
+
+		response, status = w.grabResponse(ctx, target, probe.DecodeData(probeToSend))
 		switch status {
 		case Success:
 		case ErrConn:
