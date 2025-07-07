@@ -137,14 +137,41 @@ func (v *Cokmap) launchWorkers(ctx context.Context, grabWorker *dialer.Worker, e
 	var wgDialW sync.WaitGroup
 	wgDialW.Add(v.config.DialWorkers)
 	for range v.config.DialWorkers {
-		go grabWorker.ProcessTargets(ctx, &wgDialW, inTargets, grab)
+		// go grabWorker.ProcessTargets(ctx, &wgDialW, inTargets, grab)
+		go func() {
+			slog.Info("dialer run")
+			defer wgDialW.Done()
+
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case target, ok := <-inTargets:
+					if !ok {
+						return
+					}
+
+					for {
+						resp := grabWorker.ProcessTarget(ctx, target)
+						result, retry := extractWorker.ProcessBanner(ctx, resp)
+
+						if result != nil {
+							res <- result
+							break
+						} else if retry != nil {
+							target = *retry
+						}
+					}
+				}
+			}
+		}()
 	}
 
-	var wgMatchW sync.WaitGroup
-	wgMatchW.Add(v.config.MatchWorkers)
-	for range v.config.MatchWorkers {
-		go extractWorker.ProcessBanners(ctx, &wgMatchW, grab, res)
-	}
+	// var wgMatchW sync.WaitGroup
+	// wgMatchW.Add(v.config.MatchWorkers)
+	// for range v.config.MatchWorkers {
+	// 	go extractWorker.ProcessBanners(ctx, &wgMatchW, grab, res)
+	// }
 
 	if err := v.config.input(ctx, v.config.InFile, inTargets); err != nil {
 		return err
@@ -156,8 +183,8 @@ func (v *Cokmap) launchWorkers(ctx context.Context, grabWorker *dialer.Worker, e
 	slog.Debug("dial workers end work")
 	close(grab)
 
-	wgMatchW.Wait()
-	slog.Debug("match workers end work")
+	// wgMatchW.Wait()
+	// slog.Debug("match workers end work")
 	close(res)
 
 	wgOutput.Wait()

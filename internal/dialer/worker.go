@@ -1,6 +1,7 @@
 package dialer
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"log/slog"
@@ -133,11 +134,80 @@ func (w *Worker) ProcessTargets(ctx context.Context, wg *sync.WaitGroup, in <-ch
 	}
 }
 
+func (w *Worker) ProcessTarget(ctx context.Context, t Target) *DialResult {
+	if w.config.saveProductsSummary {
+		w.targetsCounter.Add(1)
+	}
+	selectedProbes := w.selectProbes(&t)
+	result, usedProbes, status := w.scanWithProbes(ctx, &t, selectedProbes)
+
+	if status != ErrConn && status != Success && w.config.useAllprobes {
+		blacklist := make(map[string]struct{})
+		for _, p := range usedProbes {
+			blacklist[p.Name] = struct{}{}
+		}
+		selectedProbes = w.getAllRemainingProbes(t.Protocol, blacklist)
+		result, _, status = w.scanWithProbes(ctx, &t, selectedProbes)
+	}
+
+	if status != Success {
+		err := Error{target: t, No: status}
+		result.Error = err
+		result.ErrorStr = err.Error()
+		slog.Warn("no data received from all probes", "error", err.Error())
+	}
+
+	if w.config.saveProductsSummary {
+		if t.Protocol == "tcp" {
+			w.tcpCounter.Add(1)
+		} else {
+			w.udpCounter.Add(1)
+		}
+	}
+
+	return &DialResult{
+		&t,
+		result,
+	}
+}
+
+var httpProbes = map[string]struct{}{
+	"GetRequest":        {},
+	"HTTPOptions":       {},
+	"FourOhFourRequest": {},
+}
+
+var newLine = []byte{0x0d, 0x0a}
+
+func modifyHTTPProbe(data []byte, target *Target) []byte {
+
+	idxEndHeaders := bytes.Index(data, newLine) // find first "\r\n"
+	if idxEndHeaders == -1 {
+		return data
+	}
+
+	hostHeader := []byte("\r\nHost: " + target.IP)
+
+	modified := make([]byte, 0, len(data)+len(hostHeader))
+	modified = append(modified, data[:idxEndHeaders]...)
+	modified = append(modified, hostHeader...)
+	modified = append(modified, data[idxEndHeaders:]...)
+
+	return modified
+}
+
 func (w *Worker) scanWithProbes(ctx context.Context, target *Target, probes []probe.Probe) (result *ScanData, usedProbes []probe.Probe, status Errno) {
 	result = new(ScanData)
 	for _, p := range probes {
 		var response []byte
-		response, status = w.grabResponse(ctx, target, probe.DecodeData(p.Data))
+
+		probeToSend := probe.DecodeData(p.Data)
+		if _, ok := httpProbes[p.Name]; ok {
+			probeToSend = modifyHTTPProbe(probeToSend, target)
+		}
+
+		slog.Debug("send probe", "data", string(probeToSend))
+		response, status = w.grabResponse(ctx, target, probeToSend)
 		switch status {
 		case Success:
 		case ErrConn:
@@ -183,13 +253,13 @@ func (w *Worker) defaultDial(ctx context.Context, t *Target, data []byte) ([]byt
 
 	w.receivePackets(conn, data, &response, &errno)
 	conn.Close()
-	if t.Protocol != "udp" {
-		tlserr := w.tlsDial(ctx, *t, data, &dialer, &response)
-		if tlserr == Success {
-			t.SecureUse = true
-			errno = Success
-		}
-	}
+	// if t.Protocol != "udp" {
+	// 	tlserr := w.tlsDial(ctx, *t, data, &dialer, &response)
+	// 	if tlserr == Success {
+	// 		t.SecureUse = true
+	// 		errno = Success
+	// 	}
+	// }
 
 	return response, errno
 }

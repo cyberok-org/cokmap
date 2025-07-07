@@ -77,6 +77,60 @@ func (w *Worker) ProcessBanners(ctx context.Context, wg *sync.WaitGroup, in chan
 	}
 }
 
+var tlsProbes = map[string]struct{}{
+	"SSLSessionReq":    {},
+	"TLSSessionReq":    {},
+	"SSLv23SessionReq": {},
+}
+
+func isPossibleTLS(probeName, matchName string) bool {
+	if _, ok := tlsProbes[probeName]; ok && matchName == "ssl" {
+		return true
+	}
+
+	return false
+}
+
+func (w *Worker) ProcessBanner(ctx context.Context, grab *dialer.DialResult) (*ExtractResult, *dialer.Target) {
+
+	filtered := w.getMatchersByProbe(grab.Probe.Name, grab.Target)
+	var r []rune
+	var err error
+	if grab.Probe.HexFormat {
+		r, err = hexStringToRunes(hex.EncodeToString([]byte(grab.Response)))
+		if err != nil {
+			r = []rune(grab.Response)
+			slog.Warn("got error from parsing response", "target", grab.IP, "error", err.Error())
+		}
+	} else {
+		r = []rune(grab.Response)
+	}
+	extractedData, errRegexps := w.extractProducts(filtered, r, grab.IP)
+	if len(errRegexps) > 0 {
+		slog.Debug("got timeout errors while fetching products", "target", grab.GetAddress(), "errs", errRegexps)
+	}
+	if err != nil {
+		grab.ErrorStr = err.Error()
+	}
+
+	for _, p := range extractedData {
+
+		if isPossibleTLS(grab.Name, p.Service) && !grab.Target.SecureUse {
+
+			grab.Target.SecureUse = true
+			slog.Debug("need to retry with tls connection", "grab", grab)
+			return nil, grab.Target
+		}
+	}
+
+	w.saveProductsSummary(grab, extractedData)
+
+	return &ExtractResult{
+		grab,
+		extractedData,
+	}, nil
+}
+
 func (w *Worker) getMatchersByProbe(probeName string, target *dialer.Target) types.Matchers {
 	var filtered types.Matchers
 	p, ok := w.expressionsByProbe[probeName]
