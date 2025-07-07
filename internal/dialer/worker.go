@@ -1,12 +1,12 @@
 package dialer
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"log/slog"
 	"net"
 	"strconv"
-	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -140,16 +140,23 @@ var httpProbes = map[string]struct{}{
 	"FourOhFourRequest": {},
 }
 
-var newLine = "\r\n"
+var newLine = []byte{0x0d, 0x0a}
 
-func modifyHTTPProbe(data string, target *Target) string {
+func modifyHTTPProbe(data []byte, target *Target) []byte {
 
-	idxEndHeaders := strings.Index(data, newLine) // find first "\r\n"
+	idxEndHeaders := bytes.Index(data, newLine) // find first "\r\n"
 	if idxEndHeaders == -1 {
 		return data
 	}
 
-	return data[:idxEndHeaders] + "\r\nHost: " + target.IP + data[idxEndHeaders:]
+	hostHeader := []byte("\r\nHost: " + target.IP)
+
+	modified := make([]byte, 0, len(data)+len(hostHeader))
+	modified = append(modified, data[:idxEndHeaders]...)
+	modified = append(modified, hostHeader...)
+	modified = append(modified, data[idxEndHeaders:]...)
+
+	return modified
 }
 
 func (w *Worker) scanWithProbes(ctx context.Context, target *Target, probes []probe.Probe) (result *ScanData, usedProbes []probe.Probe, status Errno) {
@@ -157,14 +164,13 @@ func (w *Worker) scanWithProbes(ctx context.Context, target *Target, probes []pr
 	for _, p := range probes {
 		var response []byte
 
-		var probeToSend string
+		probeToSend := probe.DecodeData(p.Data)
 		if _, ok := httpProbes[p.Name]; ok {
-			probeToSend = modifyHTTPProbe(p.Data, target)
-		} else {
-			probeToSend = p.Data
+			probeToSend = modifyHTTPProbe(probeToSend, target)
 		}
 
-		response, status = w.grabResponse(ctx, target, probe.DecodeData(probeToSend))
+		slog.Debug("send probe", "data", string(probeToSend))
+		response, status = w.grabResponse(ctx, target, probeToSend)
 		switch status {
 		case Success:
 		case ErrConn:
