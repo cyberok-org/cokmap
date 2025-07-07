@@ -17,14 +17,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type UDPServer struct {
-	ip   string
-	port string
-}
+// type UDPServer struct {
+// 	ip   string
+// 	port string
+// }
 
-func (s *UDPServer) StartServe() {
+// func (s *UDPServer) StartServe() {
 
-}
+// }
 
 type handler struct {
 	msg string
@@ -285,7 +285,7 @@ func TestGrabTLSResponse(t *testing.T) {
 	h := &handler{msg: servResp}
 	s := httptest.NewUnstartedServer(h)
 	s.StartTLS()
-	rawIp := strings.Trim(s.URL, "https://")
+	rawIp := strings.TrimPrefix(s.URL, "https://")
 	response, errno := w.grabResponse(context.Background(), &Target{
 		Protocol: "tcp",
 		IP:       rawIp,
@@ -304,7 +304,7 @@ func TestCheckTLSFlag(t *testing.T) {
 	h := &handler{}
 	s := httptest.NewUnstartedServer(h)
 	s.StartTLS()
-	rawIp := strings.Trim(s.URL, "https://")
+	rawIp := strings.TrimPrefix(s.URL, "https://")
 	target := &Target{
 		Protocol: "tcp",
 		IP:       rawIp,
@@ -328,7 +328,7 @@ func TestGraTLSResponse(t *testing.T) {
 	h := &handler{msg: servResp}
 	s := httptest.NewUnstartedServer(h)
 	s.StartTLS()
-	rawIp := strings.Trim(s.URL, "https://")
+	rawIp := strings.TrimPrefix(s.URL, "https://")
 	response, errno := w.grabResponse(context.Background(), &Target{
 		Protocol: "tcp",
 		IP:       rawIp,
