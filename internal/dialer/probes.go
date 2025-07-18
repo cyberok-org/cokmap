@@ -1,11 +1,12 @@
 package dialer
 
 import (
-	"cokmap/internal/probe"
 	"strings"
+
+	"github.com/cyberok-org/cokmap/internal/probe"
 )
 
-func (w *Worker) selectProbes(target *Target) []probe.Probe {
+func (w *Worker) selectProbes_old(target *Target) []probe.Probe {
 	var selectedProbes []probe.Probe
 	lastSelectedId := 0
 	targetTransportProto := strings.ToLower(target.Protocol)
@@ -48,6 +49,74 @@ func (w *Worker) selectProbes(target *Target) []probe.Probe {
 	}
 
 	return selectedProbes
+}
+
+func (w *Worker) selectProbes(target *Target) []probe.Probe {
+
+	probesLimit := w.config.probesLimit
+	rarityLimit := w.config.rarityLimit
+
+	filterProbes := func(probeList []probe.Probe) (filtered, other []probe.Probe) {
+
+		for _, probe := range probeList {
+			// if _, used := target.UsedProbes[probe.Name]; used {
+			// 	continue
+			// }
+
+			if probe.Rarity > rarityLimit {
+				continue
+			}
+
+			if !strings.EqualFold(probe.TransportProto, target.Protocol) {
+				continue
+			}
+
+			containsPort := probe.ContainsPort
+			if target.SecureUse {
+				containsPort = probe.ContainsSSLPort
+			}
+
+			if !containsPort(target.Port) {
+				other = append(other, probe)
+				continue
+			}
+
+			filtered = append(filtered, probe)
+		}
+		return filtered, other
+	}
+
+	goldenFiltered, goldenOther := filterProbes(w.golden)
+	probe.SortProbesByRarity(goldenFiltered)
+	if len(goldenFiltered) >= probesLimit {
+		return goldenFiltered[:probesLimit]
+	}
+
+	commonFiltered, commonOther := filterProbes(w.common)
+	probe.SortProbesByRarity(commonFiltered)
+	remaining := probesLimit - len(goldenFiltered)
+	if len(commonFiltered) >= remaining {
+		return append(goldenFiltered, commonFiltered[:remaining]...)
+	}
+
+	selected := make([]probe.Probe, 0, probesLimit)
+	selected = append(selected, goldenFiltered...)
+	selected = append(selected, commonFiltered...)
+
+	probe.SortProbesByRarity(goldenOther)
+	remaining = probesLimit - len(selected)
+	if len(goldenOther) >= remaining {
+		return append(selected, goldenOther[:remaining]...)
+	}
+	selected = append(selected, goldenOther...)
+
+	probe.SortProbesByRarity(commonOther)
+	remaining = probesLimit - len(selected)
+	if len(commonOther) >= remaining {
+		return append(selected, commonOther[:remaining]...)
+	}
+
+	return append(selected, commonOther...)
 }
 
 func (w *Worker) getAllRemainingProbes(proto string, blacklist map[string]struct{}) []probe.Probe {

@@ -2,7 +2,6 @@ package cokmap
 
 import (
 	"bufio"
-	"cokmap/internal/dialer"
 	"context"
 	"errors"
 	"io"
@@ -11,6 +10,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/cyberok-org/cokmap/internal/dialer"
 )
 
 const targetPattern = `^(?P<ip>(?:(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])):(?P<port>\d+)/?(?P<protocol>udp|tcp)?$`

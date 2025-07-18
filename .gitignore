@@ -12,3 +12,10 @@ go.work.sum
 
 .env
 .vscode
+
+*.txt
+*.json*
+/cmd/cmd
+
+/cmd/*res*
+

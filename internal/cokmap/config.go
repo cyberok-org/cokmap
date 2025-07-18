@@ -2,14 +2,15 @@ package cokmap
 
 import (
 	"bufio"
-	"cokmap/internal/dialer"
-	"cokmap/internal/matcher"
 	"context"
 	"io"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/cyberok-org/cokmap/internal/dialer"
+	"github.com/cyberok-org/cokmap/internal/matcher"
 )
 
 type Config struct {

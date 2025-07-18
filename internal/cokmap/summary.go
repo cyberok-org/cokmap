@@ -1,14 +1,15 @@
 package cokmap
 
 import (
-	"cokmap/internal/dialer"
-	"cokmap/internal/matcher"
 	"fmt"
 	"log/slog"
 	"os"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/cyberok-org/cokmap/internal/dialer"
+	"github.com/cyberok-org/cokmap/internal/matcher"
 )
 
 type sortedMapEntry struct {

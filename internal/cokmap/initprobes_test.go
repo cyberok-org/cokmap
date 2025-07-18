@@ -1,11 +1,12 @@
 package cokmap
 
 import (
-	"cokmap/internal/probe"
 	"io"
 	"os"
 	"reflect"
 	"testing"
+
+	"github.com/cyberok-org/cokmap/internal/probe"
 	"github.com/stretchr/testify/require"
 )
 

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"cokmap/internal/cokmap"
 	"context"
 	"flag"
 	"fmt"
@@ -9,6 +8,8 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/cyberok-org/cokmap/internal/cokmap"
 )
 
 var (

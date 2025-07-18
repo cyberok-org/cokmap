@@ -1,14 +1,15 @@
 package main
 
 import (
-	"cokmap/internal/cokmap"
 	"flag"
 	"time"
+
+	"github.com/cyberok-org/cokmap/internal/cokmap"
 )
 
 var (
 	// TODO: add scan retries
-	scanRetries  = flag.Int("r", 0, "how many retries to dial connection")
+	// scanRetries  = flag.Int("r", 0, "how many retries to dial connection")
 	verbose      = flag.Int("v", 0, "Output more information during service scanning 0=Error 1=Warning 2=Info 3=Debug")
 	dialWorkers  = flag.Int("tr", 10, "process numbers using during scanning")
 	matchWorkers = flag.Int("tm", 10, "process numbers using during parsing")

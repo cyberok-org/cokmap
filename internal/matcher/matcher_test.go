@@ -1,9 +1,11 @@
 package matcher
 
 import (
-	"cokmap/internal/dialer"
-	"cokmap/internal/probe"
 	"testing"
+
+	"github.com/cyberok-org/cokmap-api/types"
+	"github.com/cyberok-org/cokmap/internal/dialer"
+	"github.com/cyberok-org/cokmap/internal/probe"
 )
 
 func TestGetMatchersByName(t *testing.T) {
@@ -15,7 +17,7 @@ func TestGetMatchersByName(t *testing.T) {
 	testCases := []testCase{
 		{ // just want to get  {{}, {}} this empty structs
 			probeName: "NULL",
-			w:         &Worker{expressionsByProbe: map[string][]byte{"NULL": []byte{0x02}}},
+			w:         &Worker{expressionsByProbe: map[string]types.Matchers{"NULL": {&types.Matcher{}}}},
 			expected:  1,
 		},
 		{ // want to get all matchers
@@ -25,14 +27,15 @@ func TestGetMatchersByName(t *testing.T) {
 				"2": {Ports: "1", TransportProto: "tcp"},
 				"3": {Ports: "1", TransportProto: "tcp"},
 				"5": {Ports: "1", TransportProto: "tcp"},
-				"8": {Ports: "1", TransportProto: "tcp"}},
-				expressionsByProbe: map[string][]byte{
-					"":       []byte{},
-					"2":      []byte{},
-					"3":      []byte{},
-					"5":      []byte{},
-					"8":      []byte{},
-					"qwfqwf": []byte{0x05},
+				"8": {Ports: "1", TransportProto: "tcp"},
+			},
+				expressionsByProbe: map[string]types.Matchers{
+					"":       {},
+					"2":      {},
+					"3":      {},
+					"5":      {},
+					"8":      {},
+					"qwfqwf": {&types.Matcher{}},
 				},
 			},
 			expected: 1,
@@ -42,7 +45,7 @@ func TestGetMatchersByName(t *testing.T) {
 	for _, tc := range testCases {
 		m := tc.w.getMatchersByProbe(tc.probeName, target)
 		if len(m) != tc.expected {
-			t.Errorf("Expected: %d, Got: %d", tc.expected, len(m))
+			t.Errorf("Expected: %d, Got: %d name %s", tc.expected, len(m), tc.probeName)
 		}
 	}
 }
