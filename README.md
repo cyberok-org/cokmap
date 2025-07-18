@@ -40,7 +40,6 @@ Usage:
       ./cokmap [flags]
 Flags:
 USAGE:
-  -h
 INPUT:
   -i string Input filename, use - for stdin (default "-") format  ip:port/protocol
 TIMEOUT:
@@ -51,16 +50,15 @@ TIMEOUT:
 RATE-LIMIT:
   -tm int process numbers using during parsing (default 10)
   -tr int process numbers using during scanning (default 10)
-  -r int how mutch retries to dial connection (default 0)
 MATCHERS:
+  -plugin string Name of product matcher dynamic plugin file (default "../plugin/pm.so")
   -fr bool Enable softmatch parsing (default true)
 PROBES:
   -n string A flat file to store the version detection probes and match strings (default "./nmap-service-probes")
-  -nop bool Use NULL probe to probe service only (dafault false)
-  -p bool Use all probes after failed filtered probes (dafault false)
   -n-extra string Extra, golden probes to expand"nmap-service-probes"
   -pc int Sets the count of sending probes by rarity, dont disable others probes by ports, usefull for quickiest runtime (default 5)
   -probes-cfg string ini file for probes specifiations, sets which regular expression have different format, which indicates where need to convert banner
+  -use-NULL Use NULL probe in dialer service (default false)
 OUTPUT:
   -o string Output filename, use - for stdout (default "-")
   -v int Output more information during service scanning 0=Error 1=Warning 2=Info 3=Debug
