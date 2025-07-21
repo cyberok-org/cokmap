@@ -1,32 +1,33 @@
 # Cokmap 🚀
 
-**Cokmap** — это быстрый сетевой сканер, написанный на Go, который определяет протоколы и сервисы на открытых портах, отправляя различные пробы из файла `nmap-service-probes`.
+**Cokmap** — is a fast network scanner written in Go that identifies services and products on open ports by sending probes from an `nmap-service-probes` -formatted file, following the rules described in [Technique Described](https://nmap.org/book/vscan-technique.html).
 
-## 🔥 Особенности
-- **Высокая скорость** сканирования и определения протоколов и ПО на открытых портах.
-- **Поддержка формата nmap-service-probes** — [подробнее о формате](https://nmap.org/book/vscan-fileformat.html).
-- **Кросс-платформенность** — работает на Linux и macOS.
-- **Гибкие настройки**
-- **Детальная статистика**
+## 🔥 Features
+- **High-speed  scanning**
+- **Fast product detection** via `pm_[YOUR_GOOS].so` plugin
+- **Supports nmap-service-probes format** — [details here](https://nmap.org/book/vscan-fileformat.html).
+- **Works on Linux and macOS**
+- **Flexible configuration**
+- **Detailed statistics**
 
-## ⚙️ Установка
-### Сборка из исходников
-1. Убедитесь, что у вас установлен **Go** (версия 1.24.2+).
-2. Клонируйте репозиторий и собирите:
+## 🛠️ Installation
+### Build from source
+1. Ensure Go  is installed **Go** (version 1.24.2+).
+2. Clone the repository and build:
     ```bash
     git clone https://github.com/cyberok-org/cokmap.git
     cd cokmap
     go build -o cokmap ./cmd/.
     ```
-3. Получите актуальную версию `nmap-service-probes`
+3. Download the latest `nmap-service-probes`
     ```bash
     curl -O https://raw.githubusercontent.com/nmap/nmap/master/nmap-service-probes
     ```
 
 
-**Готовые релизы можно скачать в разделе [Releases](https://github.com/cyberok-org/cokmap/releases).**
+**Pre-built releases are available in the [Releases](https://github.com/cyberok-org/cokmap/releases) section.** 
 
-## Использование
+## ⚙️ Usage
 
 ### Input file format:
 ```text
@@ -35,20 +36,20 @@
 192.168.0.1:8080/udp
 ```
 ### Example
-- Сканирование одного таргета:
+- Scan a single target:
     ```bash
     echo 192.168.0.1:8080/tcp | ./cokmap -plugin plugin/pm_[YOUR_GOOS].so -n nmap-service-probes -o result.json
     ```
-- Сканирование списка таргетов:
+- Scan a list of targets:
     ```bash
-    ./cokmap -plugin plugin/pm_[YOUR_GOOS].so  -i targets -n nmap-service-probes -o result.json
-    # или
-    cat targets | ./cokmap -plugin plugin/pm_[YOUR_GOOS].so  -n nmap-service-probes -o result.json
+    ./cokmap -plugin plugin/pm_[YOUR_GOOS].so  -i targets -n nmap-service-probes -o result.jsonl
+    # or
+    cat targets | ./cokmap -plugin plugin/pm_[YOUR_GOOS].so  -n nmap-service-probes -o result.jsonl
     ```
 
 
 
-## Help
+## ❓ Help
 ```text
     ./cokmap [flags]
 
@@ -83,6 +84,18 @@ Flags:
         -bs int Output banner limit size: negative int = fullsize, 0 = without banner (default fullsize)
 ```
 
-## 📄 Лицензия
+## 🛠️ Building custom plugins
+For plugin documentation, see [Go Plugin Documentation](https://pkg.go.dev/plugin)
 
-MIT License. Подробнее в файле [LICENSE](LICENCE.md).
+To create custom product matchers, use types defined in [types.go](https://github.com/cyberok-org/cokmap-api/blob/main/types/types.go).
+Plugins must implement:
+```go
+func LoadMatchers(in io.Reader, timeout time.Duration) (types.Matchers, error)
+func ExtractProductsFromRunes(matchers types.Matchers, input []rune, ip string) ([]types.HostInfo, []error)
+```
+
+
+
+## 📄 License
+
+MIT License. Details in [LICENSE](LICENCE.md).
