@@ -16,11 +16,11 @@
     ```bash
     git clone https://github.com/cyberok-org/cokmap.git
     cd cokmap
-    go build -o cokmap cmd/.
+    go build -o cokmap ./cmd/.
     ```
 3. Получите актуальную версию `nmap-service-probes`
     ```bash
-    wget https://raw.githubusercontent.com/nmap/nmap/master/nmap-service-probes -O ./nmap-service-probes
+    curl -O https://raw.githubusercontent.com/nmap/nmap/master/nmap-service-probes
     ```
 
 
@@ -37,13 +37,13 @@
 ### Example
 - Сканирование одного таргета:
     ```bash
-    echo 192.168.0.1:8080/tcp | ./cokmap -n nmap-service-probes -o result.json
+    echo 192.168.0.1:8080/tcp | ./cokmap -plugin plugin/pm_[YOUR_GOOS].so -n nmap-service-probes -o result.json
     ```
 - Сканирование списка таргетов:
     ```bash
-    ./cokmap -i targets -n nmap-service-probes -o result.json
+    ./cokmap -plugin plugin/pm_[YOUR_GOOS].so  -i targets -n nmap-service-probes -o result.json
     # или
-    cat targets | ./cokmap -n nmap-service-probes -o result.json
+    cat targets | ./cokmap -plugin plugin/pm_[YOUR_GOOS].so  -n nmap-service-probes -o result.json
     ```
 
 
