@@ -42,7 +42,7 @@
     ```
 - Scan a list of targets:
     ```bash
-    ./cokmap -plugin plugin/pm_[YOUR_GOOS].so  -i targets -n nmap-service-probes -o result.jsonl
+    ./cokmap -plugin plugin/pm_[YOUR_GOOS].so -i targets -n nmap-service-probes -o result.jsonl
     # or
     cat targets | ./cokmap -plugin plugin/pm_[YOUR_GOOS].so  -n nmap-service-probes -o result.jsonl
     ```
