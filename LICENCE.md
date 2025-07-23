@@ -24,7 +24,7 @@ END USER LICENSE AGREEMENT FOR COKMAP
 
 2.7. The User shall not use the Software to provide services (including consulting) to third parties, including those provided on a free-of-charge basis.
 
-2.8. The User shall not distribute, lease, replicate, or transfer the Software to third parties, or use it for fraudulent or other illegal purposes either separately, bundled together with or as a part of any other software.
+2.8. The User shall not distribute, lease, replicate, or transfer the Software to third parties separately, bundled together with or as a part of any other software.
 
 2.9. The User shall not use the Software for fraudulent or other illegal purposes.
 
@@ -60,7 +60,7 @@ END USER LICENSE AGREEMENT FOR COKMAP
 
 **7\. Other provisions**
 
-7.1. The Rightholder reserves the right to amend the terms and conditions of this License and notify the User of such amendments. Information published at the Rightholder's website shall be considered due notice under this License. The User agrees that information about the current version of the License containing such amended License terms shall be considered due notice as per this clause if placed by the Rightholder as an element of the interface in the Software update installation package. If the User installs the Software update installation package containing amended License terms, this is considered an implicative action signifying that the User agrees to such amended License terms.
+7.1. The Rightholder reserves the right to amend the terms and conditions of this License and notify the User of such amendments. Information published at the Rightholder's website or the Rightholder's page on GitLab shall be considered due notice under this License. The User agrees that information about the current version of the License containing such amended License terms shall be considered due notice as per this clause if placed by the Rightholder in the Software update installation package. If the User installs the Software update installation package containing amended License terms, this is considered an implicative action signifying that the User agrees to such amended License terms.
 
 7.2. If the User disagrees with any terms of the License relayed to the User in the manner described in Clause 6.2 of the License, the User must abort installation and must not use the Software update installation package containing such amended License terms. The User has the right to continue using the Software and the Software update packages provided to the User by the Rightholder until the License terms are changed.
 
