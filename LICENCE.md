@@ -2,7 +2,7 @@ END USER LICENSE AGREEMENT FOR COKMAP
 
 **1\. General provisions**
 
-1.1. This License (hereinafter the License) represents an agreement between JSC CYBER OK (hereinafter the Rightholder) and the end user (hereinafter the User) with regard to COKMAP (hereinafter the Software) made publicly available by the Rightholder at the repository address \_**\_**\_**\_**\_**\_**\__ (hereinafter referred to as the Software) and/or the Software Modifications as defined herebelow made available as COKMAP forks at other github repositories.
+1.1. This License (hereinafter the License) represents an agreement between JSC CYBER OK (hereinafter the Rightholder) and the end user (hereinafter the User) with regard to COKMAP (hereinafter the Software) made publicly available by the Rightholder at the repository address https://github.com/cyberok-org/cokmap (hereinafter referred to as the Software) and/or the Software Modifications as defined herebelow made available as COKMAP forks at other github repositories.
 
 1.2. Whenever the Rigtholder provide any updates, fixes and/or patches to the Software (hereinafter Software update installation package) such Software update installation packages are considered a part of the Software and provided strictly under the License as well.
 
