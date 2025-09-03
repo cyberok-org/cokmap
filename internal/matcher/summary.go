@@ -1,13 +1,13 @@
 package matcher
 
 import (
+	"encoding/json"
 	"errors"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"unicode"
 
-	"github.com/cyberok-org/cokmap-api/types"
 	"github.com/cyberok-org/cokmap/internal/dialer"
 )
 
@@ -20,7 +20,7 @@ type ExtractSummary struct {
 	probes    sync.Map
 }
 
-func (v *Worker) saveProductsSummary(grab *dialer.DialResult, extract []types.HostInfo) {
+func (v *Worker) saveProductsSummary(grab *dialer.DialResult, extract [][]byte) {
 	if v.summary == nil {
 		return
 	}
@@ -35,7 +35,9 @@ func (v *Worker) saveProductsSummary(grab *dialer.DialResult, extract []types.Ho
 	}
 
 	uniq := make(map[string]struct{})
-	for _, p := range extract {
+	for _, ex := range extract {
+		var p *HostInfo
+		_ = json.Unmarshal(ex, p)
 		if _, ok := uniq[p.VendorProductName]; !ok && len(p.VendorProductName) > 0 {
 			uniq[p.VendorProductName] = struct{}{}
 			if counter, ok := v.summary.products.Load(p.VendorProductName); ok {

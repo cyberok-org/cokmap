@@ -5,9 +5,9 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"reflect"
 	"strings"
 
-	"github.com/cyberok-org/cokmap-api/types"
 	"github.com/cyberok-org/cokmap/internal/probe"
 )
 
@@ -158,26 +158,47 @@ func (v *Cokmap) initProbes() (common, golden []probe.Probe, err error) {
 	return
 }
 
-func (v *Cokmap) createExpressionsByProbe(expressions types.Matchers) (map[string]types.Matchers, error) {
+func (v *Cokmap) createExpressionsByProbe(expressions []any) (map[string][]any, error) {
+
 	if len(expressions) == 0 {
 		return nil, fmt.Errorf("expressions must be not nil and empty")
 	}
 	allocatorMap := make(map[string]int, len(expressions))
 	for _, e := range expressions {
-		if e.Soft && !v.config.EnabledSoftMatch {
+		rv := reflect.ValueOf(e)
+
+		if rv.Kind() != reflect.Struct {
 			continue
 		}
-		allocatorMap[e.Probe] += 1
+
+		f := rv.FieldByName("Probe")
+		if !f.IsValid() || f.Kind() != reflect.String {
+			continue
+		}
+
+		probe := f.String()
+		allocatorMap[probe] += 1
 	}
-	expressionsByProbe := make(map[string]types.Matchers, len(allocatorMap))
+	expressionsByProbe := make(map[string][]any, len(allocatorMap))
 	for _, e := range expressions {
-		if e.Soft && !v.config.EnabledSoftMatch {
+
+		rv := reflect.ValueOf(e)
+
+		if rv.Kind() != reflect.Struct {
 			continue
 		}
-		if len(expressionsByProbe[e.Probe]) == 0 {
-			expressionsByProbe[e.Probe] = make(types.Matchers, 0, allocatorMap[e.Probe])
+
+		f := rv.FieldByName("Probe")
+		if !f.IsValid() || f.Kind() != reflect.String {
+			continue
 		}
-		expressionsByProbe[e.Probe] = append(expressionsByProbe[e.Probe], e)
+
+		probe := f.String()
+
+		if len(expressionsByProbe[probe]) == 0 {
+			expressionsByProbe[probe] = make([]any, 0, allocatorMap[probe])
+		}
+		expressionsByProbe[probe] = append(expressionsByProbe[probe], e)
 	}
 	return expressionsByProbe, nil
 }

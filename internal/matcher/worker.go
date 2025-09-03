@@ -3,29 +3,49 @@ package matcher
 import (
 	"context"
 	"encoding/hex"
+	"encoding/json"
 	"log/slog"
 	"sync"
 
-	"github.com/cyberok-org/cokmap-api/types"
 	"github.com/cyberok-org/cokmap/internal/dialer"
 	"github.com/cyberok-org/cokmap/internal/probe"
 )
 
 type Worker struct {
 	summary            *ExtractSummary
-	extractProducts    func(matchers types.Matchers, banner []rune, socket string) ([]types.HostInfo, []error)
-	expressionsByProbe map[string]types.Matchers
+	extractProducts    func(matchers any, banner []rune, socket string) ([][]byte, []error)
+	expressionsByProbe map[string][]any
 	probesByName       map[string]probe.Probe
+}
+
+type Info[T any] struct {
+	VendorProductName T   `json:"vendorproductname,omitempty"`
+	Version           T   `json:"version,omitempty"`
+	Info              T   `json:"info,omitempty"`
+	Hostname          T   `json:"hostname,omitempty"`
+	OS                T   `json:"os,omitempty"`
+	DeviceType        T   `json:"devicetype,omitempty"`
+	CPE               []T `json:"cpe,omitempty"`
+}
+
+type HostInfo struct {
+	Probe       string `json:"probe"`
+	Service     string `json:"service"`
+	Regex       string `json:"regex"`
+	FaviconHash string `json:"favicon_hash,omitempty"`
+	SoftMatch   bool   `json:"softmatch"`
+	Error       string `json:"error,omitempty"`
+	Info[string]
 }
 type ExtractResult struct {
 	*dialer.DialResult
-	Products []types.HostInfo
+	Products []HostInfo
 }
 
 func NewWorker(
 	createSummary, probesSummary, errorsSummary bool,
-	expressionsByProbe map[string]types.Matchers, probesByName map[string]probe.Probe,
-	extractProducts func(matchers types.Matchers, banner []rune, socket string) ([]types.HostInfo, []error),
+	expressionsByProbe map[string][]any, probesByName map[string]probe.Probe,
+	extractProducts func(matchers any, banner []rune, socket string) ([][]byte, []error),
 ) *Worker {
 	w := &Worker{expressionsByProbe: expressionsByProbe, probesByName: probesByName, extractProducts: extractProducts}
 	if createSummary {
@@ -68,10 +88,15 @@ func (w *Worker) ProcessBanners(ctx context.Context, wg *sync.WaitGroup, in chan
 				grab.ErrorStr = err.Error()
 			}
 			w.saveProductsSummary(grab, extractedData)
-
+			var res []HostInfo
+			for _, extract := range extractedData {
+				var info *HostInfo
+				_ = json.Unmarshal(extract, info)
+				res = append(res, *info)
+			}
 			out <- &ExtractResult{
 				grab,
-				extractedData,
+				res,
 			}
 		}
 	}
@@ -112,27 +137,29 @@ func (w *Worker) ProcessBanner(ctx context.Context, grab *dialer.DialResult) (*E
 	if err != nil {
 		grab.ErrorStr = err.Error()
 	}
-
+	var res []HostInfo
 	for _, p := range extractedData {
-
-		if isPossibleTLS(grab.Name, p.Service) && !grab.Target.SecureUse {
+		var info HostInfo
+		_ = json.Unmarshal(p, info)
+		if isPossibleTLS(grab.Name, info.Service) && !grab.Target.SecureUse {
 
 			grab.Target.SecureUse = true
 			slog.Debug("need to retry with tls connection", "grab", grab)
 			return nil, grab.Target
 		}
+		res = append(res, info)
 	}
 
 	w.saveProductsSummary(grab, extractedData)
 
 	return &ExtractResult{
 		grab,
-		extractedData,
+		res,
 	}, nil
 }
 
-func (w *Worker) getMatchersByProbe(probeName string, target *dialer.Target) types.Matchers {
-	var filtered types.Matchers
+func (w *Worker) getMatchersByProbe(probeName string, target *dialer.Target) []any {
+	var filtered []any
 	p, ok := w.expressionsByProbe[probeName]
 	if !ok {
 		for k, probe := range w.expressionsByProbe {
