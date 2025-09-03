@@ -87,13 +87,14 @@ func (w *Worker) ProcessBanners(ctx context.Context, wg *sync.WaitGroup, in chan
 			if err != nil {
 				grab.ErrorStr = err.Error()
 			}
-			w.saveProductsSummary(grab, extractedData)
 			var res []HostInfo
 			for _, extract := range extractedData {
 				var info *HostInfo
 				_ = json.Unmarshal(extract, info)
 				res = append(res, *info)
 			}
+			w.saveProductsSummary(grab, res)
+
 			out <- &ExtractResult{
 				grab,
 				res,
@@ -150,7 +151,7 @@ func (w *Worker) ProcessBanner(ctx context.Context, grab *dialer.DialResult) (*E
 		res = append(res, info)
 	}
 
-	w.saveProductsSummary(grab, extractedData)
+	w.saveProductsSummary(grab, res)
 
 	return &ExtractResult{
 		grab,

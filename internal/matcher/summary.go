@@ -1,7 +1,6 @@
 package matcher
 
 import (
-	"encoding/json"
 	"errors"
 	"strings"
 	"sync"
@@ -20,7 +19,7 @@ type ExtractSummary struct {
 	probes    sync.Map
 }
 
-func (v *Worker) saveProductsSummary(grab *dialer.DialResult, extract [][]byte) {
+func (v *Worker) saveProductsSummary(grab *dialer.DialResult, extract []HostInfo) {
 	if v.summary == nil {
 		return
 	}
@@ -35,9 +34,7 @@ func (v *Worker) saveProductsSummary(grab *dialer.DialResult, extract [][]byte) 
 	}
 
 	uniq := make(map[string]struct{})
-	for _, ex := range extract {
-		var p *HostInfo
-		_ = json.Unmarshal(ex, p)
+	for _, p := range extract {
 		if _, ok := uniq[p.VendorProductName]; !ok && len(p.VendorProductName) > 0 {
 			uniq[p.VendorProductName] = struct{}{}
 			if counter, ok := v.summary.products.Load(p.VendorProductName); ok {
