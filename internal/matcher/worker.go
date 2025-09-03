@@ -89,8 +89,12 @@ func (w *Worker) ProcessBanners(ctx context.Context, wg *sync.WaitGroup, in chan
 			}
 			var res []HostInfo
 			for _, extract := range extractedData {
-				var info *HostInfo
-				_ = json.Unmarshal(extract, info)
+				info := &HostInfo{}
+				err = json.Unmarshal(extract, info)
+				if err != nil {
+					continue
+				}
+
 				res = append(res, *info)
 			}
 			w.saveProductsSummary(grab, res)
@@ -140,15 +144,18 @@ func (w *Worker) ProcessBanner(ctx context.Context, grab *dialer.DialResult) (*E
 	}
 	var res []HostInfo
 	for _, p := range extractedData {
-		var info HostInfo
-		_ = json.Unmarshal(p, info)
+		info := &HostInfo{}
+		err = json.Unmarshal(p, info)
+		if err != nil {
+			continue
+		}
 		if isPossibleTLS(grab.Name, info.Service) && !grab.Target.SecureUse {
 
 			grab.Target.SecureUse = true
 			slog.Debug("need to retry with tls connection", "grab", grab)
 			return nil, grab.Target
 		}
-		res = append(res, info)
+		res = append(res, *info)
 	}
 
 	w.saveProductsSummary(grab, res)
