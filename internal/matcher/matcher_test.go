@@ -3,7 +3,6 @@ package matcher
 import (
 	"testing"
 
-	"github.com/cyberok-org/cokmap-api/types"
 	"github.com/cyberok-org/cokmap/internal/dialer"
 	"github.com/cyberok-org/cokmap/internal/probe"
 )
@@ -17,7 +16,7 @@ func TestGetMatchersByName(t *testing.T) {
 	testCases := []testCase{
 		{ // just want to get  {{}, {}} this empty structs
 			probeName: "NULL",
-			w:         &Worker{expressionsByProbe: map[string]types.Matchers{"NULL": {&types.Matcher{}}}},
+			w:         &Worker{expressionsByProbe: map[string][]any{"NULL": []any{1}}},
 			expected:  1,
 		},
 		{ // want to get all matchers
@@ -29,13 +28,13 @@ func TestGetMatchersByName(t *testing.T) {
 				"5": {Ports: "1", TransportProto: "tcp"},
 				"8": {Ports: "1", TransportProto: "tcp"},
 			},
-				expressionsByProbe: map[string]types.Matchers{
+				expressionsByProbe: map[string][]any{
 					"":       {},
 					"2":      {},
 					"3":      {},
 					"5":      {},
 					"8":      {},
-					"qwfqwf": {&types.Matcher{}},
+					"qwfqwf": {[]any{1}},
 				},
 			},
 			expected: 1,
