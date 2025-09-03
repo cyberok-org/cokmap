@@ -7,8 +7,8 @@ import (
 	"sync/atomic"
 	"unicode"
 
-	"github.com/cyberok-org/cokmap-api/types"
 	"github.com/cyberok-org/cokmap/internal/dialer"
+	"github.com/cyberok-org/cokmap/public/types"
 )
 
 type ExtractSummary struct {

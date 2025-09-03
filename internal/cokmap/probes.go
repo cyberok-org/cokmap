@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/cyberok-org/cokmap-api/types"
 	"github.com/cyberok-org/cokmap/internal/probe"
+	"github.com/cyberok-org/cokmap/public/types"
 )
 
 func (v *Cokmap) probesFormat(common, golden []probe.Probe) error {

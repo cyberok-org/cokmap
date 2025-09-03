@@ -6,9 +6,9 @@ import (
 	"log/slog"
 	"sync"
 
-	"github.com/cyberok-org/cokmap-api/types"
 	"github.com/cyberok-org/cokmap/internal/dialer"
 	"github.com/cyberok-org/cokmap/internal/probe"
+	"github.com/cyberok-org/cokmap/public/types"
 )
 
 type Worker struct {

@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cyberok-org/cokmap-api/types"
 	ma "github.com/cyberok-org/cokmap/internal/matcher"
+	"github.com/cyberok-org/cokmap/public/types"
 
 	"github.com/cyberok-org/cokmap/internal/dialer"
 )

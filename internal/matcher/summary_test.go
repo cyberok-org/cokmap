@@ -3,9 +3,9 @@ package matcher
 import (
 	"testing"
 
-	"github.com/cyberok-org/cokmap-api/types"
 	"github.com/cyberok-org/cokmap/internal/dialer"
 	"github.com/cyberok-org/cokmap/internal/probe"
+	"github.com/cyberok-org/cokmap/public/types"
 )
 
 func TestSummarySave(t *testing.T) {
