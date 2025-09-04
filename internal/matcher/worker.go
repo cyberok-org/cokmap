@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"log/slog"
 	"sync"
 
@@ -136,9 +135,9 @@ func (w *Worker) ProcessBanner(ctx context.Context, grab *dialer.DialResult) (*E
 	} else {
 		r = []rune(grab.Response)
 	}
-	fmt.Println(len(filtered))
+
 	extractedData, errRegexps := w.extractProducts(filtered, r, grab.IP)
-	fmt.Println(len(extractedData))
+
 	if len(errRegexps) > 0 {
 		slog.Debug("got timeout errors while fetching products", "target", grab.GetAddress(), "errs", errRegexps)
 	}
