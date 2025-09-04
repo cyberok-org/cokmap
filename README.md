@@ -12,7 +12,7 @@
 
 ## 🛠️ Installation
 ### Build from source
-1. Ensure Go  is installed **Go** (version 1.24.2+).
+1. Ensure Go  is installed **Go** version **`1.24.2`**.
 2. Clone the repository and build:
     ```bash
     git clone https://github.com/cyberok-org/cokmap.git
