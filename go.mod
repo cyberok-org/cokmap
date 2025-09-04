@@ -2,10 +2,7 @@ module github.com/cyberok-org/cokmap
 
 go 1.24.2
 
-require (
-	github.com/cyberok-org/cokmap-api v1.0.4
-	github.com/stretchr/testify v1.10.0
-)
+require github.com/stretchr/testify v1.10.0
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
