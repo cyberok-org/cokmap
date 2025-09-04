@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"sync"
 
@@ -13,7 +14,7 @@ import (
 
 type Worker struct {
 	summary            *ExtractSummary
-	extractProducts    func(matchers any, banner []rune, socket string) ([][]byte, []error)
+	extractProducts    func(matchers []any, banner []rune, socket string) ([][]byte, []error)
 	expressionsByProbe map[string][]any
 	probesByName       map[string]probe.Probe
 }
@@ -45,7 +46,7 @@ type ExtractResult struct {
 func NewWorker(
 	createSummary, probesSummary, errorsSummary bool,
 	expressionsByProbe map[string][]any, probesByName map[string]probe.Probe,
-	extractProducts func(matchers any, banner []rune, socket string) ([][]byte, []error),
+	extractProducts func(matchers []any, banner []rune, socket string) ([][]byte, []error),
 ) *Worker {
 	w := &Worker{expressionsByProbe: expressionsByProbe, probesByName: probesByName, extractProducts: extractProducts}
 	if createSummary {
@@ -135,7 +136,9 @@ func (w *Worker) ProcessBanner(ctx context.Context, grab *dialer.DialResult) (*E
 	} else {
 		r = []rune(grab.Response)
 	}
+	fmt.Println(len(filtered))
 	extractedData, errRegexps := w.extractProducts(filtered, r, grab.IP)
+	fmt.Println(len(extractedData))
 	if len(errRegexps) > 0 {
 		slog.Debug("got timeout errors while fetching products", "target", grab.GetAddress(), "errs", errRegexps)
 	}

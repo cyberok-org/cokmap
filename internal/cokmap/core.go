@@ -99,7 +99,7 @@ func (v *Cokmap) Start(ctx context.Context) error {
 		return fmt.Errorf("fatal error while loading function %s product matcher Plugin error %w", v.config.ProductMatcherPlugin, err)
 	}
 
-	extracterProducts, ok := extracterProductsPointer.(func(matchers any, input []int32, ip string) ([][]byte, []error))
+	extracterProducts, ok := extracterProductsPointer.(func(matchers []any, input []int32, ip string) ([][]byte, []error))
 	if !ok {
 		return fmt.Errorf("unexpected type from plugin symbol: %T", extracterProducts)
 	}

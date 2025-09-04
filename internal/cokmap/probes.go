@@ -167,6 +167,10 @@ func (v *Cokmap) createExpressionsByProbe(expressions []any) (map[string][]any, 
 	for _, e := range expressions {
 		rv := reflect.ValueOf(e)
 
+		if rv.Kind() == reflect.Ptr {
+			rv = rv.Elem() // разыменовать
+		}
+
 		if rv.Kind() != reflect.Struct {
 			continue
 		}
@@ -183,6 +187,10 @@ func (v *Cokmap) createExpressionsByProbe(expressions []any) (map[string][]any, 
 	for _, e := range expressions {
 
 		rv := reflect.ValueOf(e)
+
+		if rv.Kind() == reflect.Ptr {
+			rv = rv.Elem() // разыменовать
+		}
 
 		if rv.Kind() != reflect.Struct {
 			continue
