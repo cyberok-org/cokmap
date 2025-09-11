@@ -19,7 +19,7 @@
     cd cokmap
     CGO_ENABLED=1 go build -o cokmap ./cmd/.
     ```
-    If you need to install "gcc" - install
+    You need to install "gcc"
     ```bash
     sudo apt install gcc
     ```
@@ -28,9 +28,12 @@
     curl -O https://raw.githubusercontent.com/nmap/nmap/master/nmap-service-probes
     ```
 
+### Environment variables
+
 <details>
-<summary>go env</summary>
-```
+<summary>Click here to see the <code>go env</code> output</summary>
+
+```bash
 AR='ar'
 CC='gcc'
 CGO_CFLAGS='-O2 -g'
