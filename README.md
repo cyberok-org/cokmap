@@ -17,13 +17,68 @@
     ```bash
     git clone https://github.com/cyberok-org/cokmap.git
     cd cokmap
-    go build -o cokmap ./cmd/.
+    CGO_ENABLED=1 go build -o cokmap ./cmd/.
+    ```
+    If you need to install "gcc" - install
+    ```bash
+    sudo apt install gcc
     ```
 3. Download the latest `nmap-service-probes`
     ```bash
     curl -O https://raw.githubusercontent.com/nmap/nmap/master/nmap-service-probes
     ```
 
+<details>
+<summary>go env</summary>
+```
+AR='ar'
+CC='gcc'
+CGO_CFLAGS='-O2 -g'
+CGO_CPPFLAGS=''
+CGO_CXXFLAGS='-O2 -g'
+CGO_ENABLED='1'
+CGO_FFLAGS='-O2 -g'
+CGO_LDFLAGS='-O2 -g'
+CXX='g++'
+GCCGO='gccgo'
+GO111MODULE=''
+GOAMD64='v1'
+GOARCH='amd64'
+GOAUTH='netrc'
+GOBIN=''
+GOCACHE='$HOME/.cache/go-build'
+GOCACHEPROG=''
+GODEBUG=''
+GOENV='$HOME/.config/go/env'
+GOEXE=''
+GOEXPERIMENT=''
+GOFIPS140='off'
+GOFLAGS=''
+GOGCCFLAGS='-fPIC -m64 -pthread -Wl,--no-gc-sections -fmessage-length=0 -ffile-prefix-map=/tmp/go-build3338366565=/tmp/go-build -gno-record-gcc-switches'
+GOHOSTARCH='amd64'
+GOHOSTOS='linux'
+GOINSECURE=''
+GOMOD='$HOME/cokmap/go.mod'
+GOMODCACHE='$HOME/go/pkg/mod'
+GONOPROXY=''
+GONOSUMDB=''
+GOOS='linux'
+GOPATH='$HOME/go'
+GOPRIVATE=''
+GOPROXY='https://proxy.golang.org,direct'
+GOROOT='/usr/local/go'
+GOSUMDB='sum.golang.org'
+GOTELEMETRY='local'
+GOTELEMETRYDIR='$HOME/.config/go/telemetry'
+GOTMPDIR=''
+GOTOOLCHAIN='auto'
+GOTOOLDIR='/usr/local/go/pkg/tool/linux_amd64'
+GOVCS=''
+GOVERSION='go1.24.2'
+GOWORK=''
+PKG_CONFIG='pkg-config'
+```
+</details>
 
 **Pre-built releases are available in the [Releases](https://github.com/cyberok-org/cokmap/releases) section.** 
 
